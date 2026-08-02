@@ -1,0 +1,38 @@
+# ─── personal data ───────────────────────────────────────────────────────────
+# The real show history stays off GitHub. Both of these are needed to run the
+# site but neither is public: source.csv is the export from the sheet, and
+# data.json is built from it and carries exactly the same facts, so ignoring one
+# without the other would be pointless.
+#
+# `data/sample.csv` and `data/sample.overrides.json` are committed in their
+# place — the build falls back to them automatically, so a fresh clone runs.
+data/source.csv
+data/overrides.json
+assets/data.json
+
+# Generated from the real data every build: open questions about the private
+# history, so it doesn't belong here either.
+REVIEW.md
+
+# ─── build output ────────────────────────────────────────────────────────────
+dist/
+
+# ─── junk ────────────────────────────────────────────────────────────────────
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.env
+.env.*
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

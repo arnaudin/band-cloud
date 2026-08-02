@@ -1,0 +1,56 @@
+{
+  "_readme": [
+    "Sample corrections, paired with data/sample.csv. The real pair —",
+    "data/source.csv and data/overrides.json — is gitignored; the build falls",
+    "back to these so a fresh clone runs with no setup.",
+    "See UPDATING.md for what each section is for."
+  ],
+
+  "artistAliases": {
+    "The Gilded Antlers": "Gilded Antlers"
+  },
+
+  "venueAliases": {
+    "The Lantern Room": "The Lantern Room, Portland",
+    "Basement Tapes": "Basement Tapes, Chicago"
+  },
+
+  "cityRegions": {
+    "Portland": "OR",
+    "Seattle": "WA",
+    "Chicago": "IL",
+    "Austin": "TX"
+  },
+
+  "venueMeta": {
+    "the-quarry": { "city": "Seattle", "region": "WA" }
+  },
+
+  "dateFixes": {},
+
+  "venueIsFestival": {
+    "Wildwater Festival 2018": {
+      "festival": "Wildwater Festival", "year": 2018,
+      "venue": "Cedar Flats, Bend, OR"
+    },
+    "Wildwater Festival 2019": {
+      "festival": "Wildwater Festival", "year": 2019,
+      "venue": "Cedar Flats, Bend, OR"
+    }
+  },
+
+  "festivalNotes": {},
+
+  "cityHints": {},
+
+  "dropBlankArtistRows": true,
+
+  "review": {
+    "notes": [
+      {
+        "topic": "This is sample data",
+        "detail": "Every band and venue here is invented, so the repo runs and the layout can be exercised without publishing a real show history. Point data/source.csv at your own export to replace it."
+      }
+    ]
+  }
+}
