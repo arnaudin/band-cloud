@@ -52,59 +52,22 @@ GitHub Pages served straight from this repo would show an empty wall.
 
 ## Adding a one-off show
 
-Add one row per **band**, not per show. Two bands on the same night at the same
-venue = two rows with the same date and venue; the build groups them back into
-one show and they'll show up on each other's page as "Also that night".
+The CSV format — columns, every accepted date format, and how venues and notes
+are parsed — is documented in [README.md](README.md#csv-format). It is the
+reference; this file is the routine.
 
-| Band | Date | Venue or Festival | Notes |
-|---|---|---|---|
-| `Mdou Moctar` | `9/24/2025` | `Radio East, Austin` | |
+Two things worth repeating, because they are the easiest to get wrong:
 
-### Date — all of these work
+- **One row per band, not per show.** Same date + same venue groups them into
+  one night automatically.
+- **Put the city in the venue cell** — `Radio East, Austin`. A new venue in a
+  new town then needs no configuration at all.
 
-| You write | Reads as |
-|---|---|
-| `9/24/2025` | exact day |
-| `December 7, 2002` | exact day |
-| `7/26-29/2012` | a run of days (festivals) |
-| `9/30-10/2/2016` | a run crossing a month |
-| `11/2023` or `November 2023` | just the month — shown as "approx." |
-| `2003` | just the year — shown as "approx." |
-| *(blank)* | "Date not recorded" |
-
-A date containing a comma (`December 7, 2002`) has to be quoted in the CSV.
-Google Sheets does that for you on export — it only bites if you hand-edit the
-file.
-
-Anything coarser than a day is labelled **approx.** in the drawer, so a vague
-memory never reads as a precise claim.
-
-Undated rows are **never merged into a shared night**, even at the same venue —
-that would be inventing a fact. Two undated rows at The NorVa stay two entries
-until you give them a date.
-
-### Venue — put the city right in the cell
-
-| You write | Result |
-|---|---|
-| `Radio East, Austin` | venue *Radio East*, city Austin, TX |
-| `Boar's Nest Cafe, Harrisonburg, VA` | venue, city, state |
-| `The Fillmore` | venue with no city — flagged in REVIEW.md |
-| `Austin, TX` | city only, no venue named |
-
-The state fills itself in for cities already in `cityRegions` (Austin, SF,
-Charlottesville, Blacksburg…). A two-letter code as the *second* part means
-"city, state with no venue" — that's why `Austin, TX` doesn't create a venue
-called Austin.
-
-**A brand new venue in a brand new town needs nothing but this cell.** Type the
-city and it lands on the venue page with the right location.
-
-### Festivals
+### Festivals are the one exception
 
 Put the festival in the venue column with its year — `Outside Lands 2016`,
-`FloydFest 2012` — and add it once to `venueIsFestival` in
-`data/overrides.json` so it gets its own page and a real site:
+`FloydFest 2012` — then add it once to `venueIsFestival` in
+`data/overrides.json` so it gets its own page and a real location:
 
 ```json
 "FloydFest 2012": {
@@ -113,21 +76,8 @@ Put the festival in the venue column with its year — `Outside Lands 2016`,
 }
 ```
 
-This is the one case that needs a config edit, because only you know what
-physical place a festival name refers to.
-
-### Notes
-
-The Notes column does several jobs, sorted out automatically:
-
-- **A tour or billing** → shown under that band's entry.
-  *`Villains World Tour`, `Second night of a two-night stand`*
-  When every act that night carries the same note, it's printed once for the
-  show rather than repeated after each name.
-- **A festival name** listed in `festivalNotes` → becomes a festival badge.
-  *`Bridge School Benefit`, `Warped Tour`*
-- **A URL** → becomes a link. *setlist.fm etc.*
-- **Anything else** → free text on the show.
+This needs a config edit because only you know what physical place a festival
+name refers to.
 
 ---
 
@@ -166,23 +116,9 @@ when you feel like it.
 
 ## Checking your work
 
-The build asserts its own output (no duplicate ids, no orphan references, no
-empty lineups, artist and show counts in agreement) and exits non-zero on
-regression.
+The build asserts its own output and exits non-zero on regression, so a bad
+export can't quietly land.
 
-If you add a lot of bands at once and want to confirm the wall still packs
-cleanly, see the auditor section in `README.md` — paste `tools/audit.js` into
-the browser console and run `__sweep(25)`.
-
----
-
-## Serving it locally
-
-```bash
-cd ~/Documents/Claude/band-cloud && python3 -m http.server 8146
-```
-
-Then <http://localhost:8146>. It must be served over HTTP — opening
-`index.html` as a `file://` URL gives a blank wall, because the page fetches
-`assets/data.json` and uses ES modules, both of which browsers block on
-`file://`.
+After adding a lot of bands at once, it's worth confirming the wall still packs
+cleanly: paste `tools/audit.js` into the browser console and run `__sweep(25)`.
+See [README.md](README.md#auditing-the-layout) for what the numbers mean.
