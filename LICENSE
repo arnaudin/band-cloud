@@ -23,7 +23,7 @@ SOFTWARE.
 ────────────────────────────────────────────────────────────────────────────────
 EXCEPTIONS
 
-The MIT licence above covers the code in this repository — the layout engine,
+The MIT license above covers the code in this repository — the layout engine,
 build tooling, styles and markup.
 
 It does NOT cover:
@@ -37,4 +37,4 @@ It does NOT cover:
       The real data (data/source.csv and the assets/data.json built from it) is
       personal and is not committed to this repository. data/sample.csv holds
       invented placeholder data so the project runs; it is covered by the MIT
-      licence above.
+      license above.

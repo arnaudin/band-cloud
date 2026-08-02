@@ -307,3 +307,12 @@ Code is MIT — see [LICENSE](LICENSE). Two exceptions, both noted there:
   full texts in [`assets/fonts/`](assets/fonts/LICENSES.md).
 - The real concert history is personal and is not in this repository.
   `data/sample.csv` is invented placeholder data.
+
+### Credit
+
+MIT means you can use this without asking. If the layout engine is useful to
+you, a link back to [ryanarnaudin.com](https://ryanarnaudin.com) is genuinely
+appreciated — a line in a README or a footer credit is plenty.
+
+That's a request, not a condition. Making it a license term would mean this is
+no longer MIT, which costs more than a backlink is worth.
