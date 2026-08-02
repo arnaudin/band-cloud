@@ -178,14 +178,21 @@ function splitVenue(raw, cityRegions) {
 const csv = parseCsv(readFileSync(csvSrc.path, 'utf8'));
 const ov = JSON.parse(readFileSync(ovSrc.path, 'utf8'));
 
-// Defaults, so a hand-written overrides file may omit sections it doesn't need.
-for (const k of ['artistAliases', 'venueAliases', 'cityRegions', 'venueMeta',
-  'dateFixes', 'venueIsFestival', 'festivalNotes', 'cityHints']) ov[k] ??= {};
+// An overrides file may legitimately omit sections it doesn't need, so missing
+// ones default to empty. But defaulting silently is how a section that was
+// *lost* — a bad edit, a typo'd key — turns into corrections quietly no longer
+// applying, so say which ones weren't found.
+const SECTIONS = ['artistAliases', 'venueAliases', 'cityRegions', 'venueMeta',
+  'dateFixes', 'venueIsFestival', 'festivalNotes', 'cityHints'];
+const missingSections = SECTIONS.filter((k) => ov[k] === undefined);
+for (const k of SECTIONS) ov[k] ??= {};
 ov.review ??= { notes: [] };
 ov.review.notes ??= [];
 
 const stats = { rows: csv.length, droppedBlank: 0, deduped: 0, dateFixed: 0 };
-const warnings = [];
+const warnings = missingSections.map(
+  (k) => `overrides.json has no "${k}" section — corrections of that kind are not being applied`,
+);
 
 const artists = new Map();   // id -> { id, name, sort, count, showIds }
 const venues = new Map();    // id -> { id, name, city, region, assumed, showIds }
