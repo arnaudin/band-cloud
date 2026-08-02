@@ -46,7 +46,7 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
 // `?seed=N` pins a composition: handy for sharing one, or for replaying an
 // arrangement that looked wrong. It is read but deliberately never written —
 // writing it on shuffle would make the next reload reproduce the same wall,
-// which is exactly the behaviour this feature removes.
+// which is exactly the behavior this feature removes.
 function readSeed() {
   const pinned = new URLSearchParams(location.search).get('seed');
   if (pinned !== null && /^\d+$/.test(pinned)) return Number(pinned) >>> 0;
@@ -66,8 +66,8 @@ async function boot() {
 
   const d = state.data;
   const years = d.shows.filter((s) => s.date).map((s) => +s.date.slice(0, 4));
-  // No "nights" count: 10 of the shows are undated single-band placeholders, so
-  // the number overstated how many distinct nights are actually recorded.
+  // No "nights" count: undated rows each become their own show, so the figure
+  // overstated how many distinct nights are actually recorded.
   statsEl.innerHTML =
     `${d.artists.length} bands · <a href="#/venues">${d.venues.length} venues</a> · ${Math.min(...years)}–${Math.max(...years)}`;
 
@@ -101,7 +101,12 @@ async function boot() {
 
 /* ------------------------------------------------------------- typeface --- */
 
+// Query string wins over the saved preference, and is never written back — same
+// contract as ?seed=. Lets a specific look be linked, scripted, or captured
+// without disturbing what the browser remembers.
 function readFace() {
+  const q = new URLSearchParams(location.search).get('face');
+  if (q && FACES[q]) return q;
   try {
     const saved = localStorage.getItem(FACE_KEY);
     if (saved && FACES[saved]) return saved;
@@ -153,6 +158,8 @@ function syncFaceButton() {
 /* ---------------------------------------------------------------- theme --- */
 
 function readTheme() {
+  const q = new URLSearchParams(location.search).get('theme');
+  if (q && THEMES[q]) return q;
   try {
     const saved = localStorage.getItem(THEME_KEY);
     if (saved && THEMES[saved]) return saved;
@@ -291,9 +298,9 @@ function observePointer() {
 
 /* ---------------------------------------------------------------- render --- */
 
-// The 201 elements are created once and never replaced — only restyled — so
-// focus, the router's `lastFocus` reference and any in-flight transition all
-// survive a reshuffle.
+// Word elements are created once and never replaced, only restyled, so focus,
+// the router's `lastFocus` reference, and any in-flight transition survive a
+// reshuffle.
 function createNodes() {
   const frag = document.createDocumentFragment();
   for (const w of state.words) {
@@ -315,7 +322,7 @@ function createNodes() {
 // tonal ramp exists to build — so low tiers keep most of their neutral.
 //
 // The mix is toward that tier's own ramp value, NOT toward --ground. Two
-// reasons: colour then reads as a hue shift at constant value rather than as a
+// reasons: color then reads as a hue shift at constant value rather than as a
 // brightness drop, so it never fights the hierarchy; and the result's contrast
 // is bounded below by the two endpoints, both of which clear 4.5:1, so accents
 // can't quietly sink under AA the way mixing toward the background would.
@@ -330,10 +337,10 @@ function styleNodes() {
     el.style.fontWeight = w.fontWeight;
 
     // Lightness by tier is the whole point — see the token block in app.css.
-    const colour = w.accent
+    const color = w.accent
       ? `color-mix(in srgb, var(${w.accent}) ${ACCENT_STRENGTH[w.tier]}%, var(--w${w.tier}))`
       : `var(--w${w.tier})`;
-    el.style.color = colour;
+    el.style.color = color;
     // Hover lifts to the top of the ramp, or to the accent at full strength.
     el.style.setProperty('--hl', w.accent ? `var(${w.accent})` : 'var(--w5)');
   }
@@ -357,7 +364,7 @@ function render({ entrance = false, pass = 0 } = {}) {
   // so this doesn't bind and the whole wall fits. At 1024×768 filling one screen
   // would need ~11px, which is past readable — so it binds, the wall grows past
   // the fold, and the page scrolls. That's the correct answer: a window that
-  // small genuinely cannot hold 201 legible names at once.
+  // small genuinely cannot hold this many legible names at once.
   //
   // Per face, because a marker hand needs more size to stay readable than a
   // grotesque does.
@@ -397,7 +404,7 @@ function render({ entrance = false, pass = 0 } = {}) {
     el.style.transform = t;
 
     // Parallax depth, assigned per row so a whole row slides as one unit and
-    // neighbours never separate. Alternating direction by row makes the layers
+    // neighbors never separate. Alternating direction by row makes the layers
     // read as depth rather than as the whole wall sliding.
     const dir = p.row % 2 ? -1 : 1;
     el.style.setProperty('--dp', (dir * (0.35 + ((p.row * 7) % 5) / 5 * 0.65)).toFixed(3));

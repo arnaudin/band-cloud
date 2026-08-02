@@ -46,8 +46,8 @@
     const wall = document.getElementById('wall');
     const R = rects();
 
-    // Overlaps, via a y-sweep. The naive all-pairs version is 20k comparisons
-    // per run and blows a 30s console budget over a 40-seed sweep.
+    // Overlaps, via a y-sweep. Naive all-pairs is tens of thousands of
+    // comparisons per run and blows a console time budget over a long sweep.
     const S = [...R].sort((a, b) => a.t - b.t);
     let pairs = 0, worst = 0, worstPair = null;
     for (let i = 0; i < S.length; i++) {
@@ -107,7 +107,7 @@
     return window.__reportBy('face');
   };
 
-  const summarise = (runs) => {
+  const summarize = (runs) => {
     const col = (k) => runs.map((r) => r[k]);
     const pick = (k, cmp) => runs.reduce((a, b) => (cmp(b[k], a[k]) ? b : a));
     const gappiest = pick('maxGapPx', (x, y) => x > y);
@@ -126,12 +126,12 @@
     };
   };
 
-  window.__report = () => summarise(window.__runs);
+  window.__report = () => summarize(window.__runs);
 
   window.__reportBy = (key) => {
     const groups = {};
     for (const r of window.__runs) (groups[r[key]] ||= []).push(r);
-    return Object.fromEntries(Object.entries(groups).map(([k, v]) => [k, summarise(v)]));
+    return Object.fromEntries(Object.entries(groups).map(([k, v]) => [k, summarize(v)]));
   };
 
   console.log('[audit] ready — __audit() · __sweep(n) · __sweepFaces(n) · __report() · __reportBy("face"|"vp")');

@@ -3,6 +3,27 @@
 Every band I've seen live, as a word cloud. Click a name for when and where;
 search to jump straight to a band, venue, or festival.
 
+Built for and running at **[ryanarnaudin.com](https://ryanarnaudin.com)**, where
+it lives in a subdirectory.
+
+![The wall, Ink & Ash theme](docs/img/wall-ink.jpg)
+
+Coverage is a property of the layout algorithm rather than of tuning: rows are
+packed past the container edge and scaled back to fit, so whitespace has nowhere
+to appear and names bleed off the sides by design. Every load composes a new
+arrangement.
+
+Clicking a name opens its history — every date and venue, festivals, tour notes,
+and who else was on the bill that night:
+
+![Detail drawer for a band, showing dates, venues and other acts](docs/img/detail.jpg)
+
+Two themes and two typefaces, each toggled from the masthead:
+
+| Marquee theme | Marker typeface |
+|---|---|
+| ![Marquee theme](docs/img/wall-marquee.jpg) | ![Permanent Marker typeface](docs/img/wall-marker.jpg) |
+
 ## Stack
 
 None. Static HTML, CSS, and ES modules — no framework, no dependencies, no
@@ -211,6 +232,11 @@ To keep a layout, read `bandCloud.seed` in the console and reload with
 `?seed=<number>`. That parameter is read but never written — auto-writing it on
 shuffle would make the next reload reproduce the same wall, which is the thing
 randomness exists to avoid.
+
+`?theme=` and `?face=` work the same way: they override the saved preference for
+one visit without changing what the browser remembers. Useful for linking a
+particular look, and for scripted captures — the screenshots above were taken
+headlessly with a pinned seed, so they can be reproduced exactly.
 
 ## Auditing the layout
 

@@ -1,25 +1,21 @@
 /* haze.js — the background wash behind the wall.
  *
- * PHASE 1 (this file): a static, very low-contrast bloom of coloured light.
- * Its job right now is to prove the layering and, more importantly, to pin down
- * the legibility budget before anything starts moving.
+ * Today: a static, low-contrast bloom of colored light. It exists to prove the
+ * layering and to pin down the legibility budget before anything moves.
  *
- * PHASE 2 (the live-lightshow / liquid-projection idea): replace `paint` with a
- * draw loop. The seams are already here —
+ * Animating it means replacing `paint` with a draw loop. The seams are in place:
  *
- *   • `--haze-intensity` in app.css is the single master dial; the canvas is
- *     composited at that opacity, so nothing downstream can exceed it.
- *   • MAX_ALPHA caps any individual light source, so a loop that stacks dozens
- *     of them still can't wash out the type.
- *   • `paint(t)` already takes a time argument and is called from a rAF-able
- *     entry point; `start()` only needs its `requestAnimationFrame` back.
+ *   • `--haze-intensity` (app.css) is the master dial — the canvas is composited
+ *     at that opacity, so nothing downstream can exceed it.
+ *   • MAX_ALPHA caps any single light source, so stacking dozens still can't
+ *     wash out the type.
+ *   • `paint(t)` already takes a time argument; a loop only needs to call it.
  *   • Motion is gated on `prefers-reduced-motion` and `document.hidden` below,
- *     so an animated version inherits both without new plumbing.
+ *     so an animated version inherits both.
  *
- * Good candidates, in order of fit: 2D metaballs with a duotone gradient map
- * (a real 1960s liquid light show was oil and dye pressed between glass — this
- * is the most literal and the cheapest); a WebGL fragment shader of slow
- * chromatic beams sweeping through haze; audio-reactive via Web Audio.
+ * Likeliest fit is 2D metaballs with a duotone gradient map — a 1960s liquid
+ * light show was oil and dye pressed between glass, which is both the closest
+ * analogue and the cheapest to draw.
  */
 
 const MAX_ALPHA = 0.22; // ceiling for any one light source
@@ -36,7 +32,7 @@ const LIGHTS = [
 const canvas = document.getElementById('haze');
 const ctx = canvas ? canvas.getContext('2d') : null;
 
-let colours = [];
+let colors = [];
 let running = false;
 
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -69,7 +65,7 @@ function paint(/* t */) {
 
   LIGHTS.forEach((l, i) => {
     const g = ctx.createRadialGradient(l.x * w, l.y * h, 0, l.x * w, l.y * h, l.r * d * 0.5);
-    const rgb = colours[i];
+    const rgb = colors[i];
     g.addColorStop(0, `rgba(${rgb}, ${Math.min(l.a, MAX_ALPHA)})`);
     g.addColorStop(0.55, `rgba(${rgb}, ${Math.min(l.a, MAX_ALPHA) * 0.35})`);
     g.addColorStop(1, `rgba(${rgb}, 0)`);
@@ -83,13 +79,13 @@ function paint(/* t */) {
 // Re-read the palette and redraw. Called when the theme changes.
 export function repaintHaze() {
   if (!ctx) return;
-  colours = LIGHTS.map((l) => rgbOf(cssVar(l.hue) || '#888888'));
+  colors = LIGHTS.map((l) => rgbOf(cssVar(l.hue) || '#888888'));
   paint(0);
 }
 
 export function initHaze() {
   if (!ctx) return;
-  colours = LIGHTS.map((l) => rgbOf(cssVar(l.hue) || '#888888'));
+  colors = LIGHTS.map((l) => rgbOf(cssVar(l.hue) || '#888888'));
   resize();
   paint(0);
 
@@ -99,7 +95,7 @@ export function initHaze() {
     t = setTimeout(() => { resize(); paint(0); }, 120);
   });
 
-  // Phase 2 hooks, wired now so an animated `paint` inherits them for free.
+  // Hooks for an animated paint, wired now so it inherits them for free.
   const motionOK = window.matchMedia('(prefers-reduced-motion: no-preference)');
   const shouldRun = () => motionOK.matches && !document.hidden;
   const sync = () => { running = shouldRun(); };

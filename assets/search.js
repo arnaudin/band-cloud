@@ -16,7 +16,7 @@ let entries = [];
 let results = [];
 let cursor = -1;
 
-/* ------------------------------------------------------------ normalise --- */
+/* ------------------------------------------------------------ normalize --- */
 
 // Strip diacritics and punctuation so "Sigur Ros", "sigur rós" and "sigur-ros"
 // all reach the same key — the data has both accented and plain spellings.
@@ -77,7 +77,7 @@ function search(raw) {
 function highlight(name, raw) {
   const q = norm(raw);
   if (!q) return esc(name);
-  // Map the normalised match back onto the original string by walking both.
+  // Map the normalized match back onto the original string by walking both.
   const n = norm(name);
   const at = n.indexOf(q);
   if (at < 0) return esc(name);

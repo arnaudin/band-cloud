@@ -27,7 +27,7 @@ mkdirSync(OUT, { recursive: true });
 cpSync(p('index.html'), join(OUT, 'index.html'));
 cpSync(p('assets'), join(OUT, 'assets'), { recursive: true });
 
-// The font licences must travel with the fonts; everything else in assets/ is
+// The font licenses must travel with the fonts; everything else in assets/ is
 // already runtime code.
 const bytes = (dir) => readdirSync(dir, { withFileTypes: true }).reduce((n, e) => {
   const full = join(dir, e.name);

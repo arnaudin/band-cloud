@@ -25,12 +25,12 @@ const CFG = {
   driftPad: 0.24,    // extra row height reserved for float + tilt
   minShrink: 0.84,   // furthest a row may be squeezed to fit
   maxGrow: 1.32,     // furthest a row may be stretched to fit
-  maxGrowLast: 1.9,  // the final row gets more licence — nothing follows it
+  maxGrowLast: 1.9,  // the final row gets more license — nothing follows it
   maxNegGap: 0.14,   // hard floor on gap tightening, as a fraction of word size
   maxGapStretch: 2.6, // ceiling on gap stretching, in multiples of the base gap
   maxTilt: 4.2,      // degrees
   tiltRate: 0.38,    // share of words eligible to tilt
-  sortBlur: 0.34,    // tier bleed between neighbouring rows (see `sortKey`)
+  sortBlur: 0.34,    // tier bleed between neighboring rows (see `sortKey`)
   maxWordW: 1.04,    // a word may never exceed this fraction of the container
   refPx: 200,        // measurement reference size
 };
@@ -42,7 +42,7 @@ const CFG = {
 const sizeOf = (w, scale, cap) => Math.min(w.weight * scale, cap / w.ratio);
 
 // Accents are a hierarchy, not confetti: the more often a band was seen, the
-// likelier it carries colour. Scattering them evenly reads as random highlighting.
+// likelier it carries color. Scattering them evenly reads as random highlighting.
 const ACCENT_RATE = [0.05, 0.07, 0.1, 0.22, 0.4, 0.6];
 
 /* ----------------------------------------------------------------- seeds --- */
@@ -56,7 +56,7 @@ function fnv1a(str) {
   return h >>> 0;
 }
 
-// One id, many independent streams — so size, weight, colour, tilt and float
+// One id, many independent streams — so size, weight, color, tilt and float
 // never correlate with each other.
 function mix(h, salt) {
   let x = (h ^ Math.imul(salt + 1, 0x9e3779b9)) >>> 0;
@@ -97,8 +97,8 @@ export function prepare(artists, seed = 0, { weights = DEFAULT_WEIGHTS } = {}) {
 
     // The tier floor comes from play count, never from the seed — how often a
     // band was actually seen is the one thing on this page carrying information,
-    // so it survives every reshuffle. Only the 172 bands seen once are free to
-    // trade places, and their sizes were arbitrary to begin with.
+    // so it survives every reshuffle. Bands seen once are free to trade places;
+    // their sizes were arbitrary to begin with.
     const tier =
       a.count >= 4 ? 5 :
       a.count === 3 ? 4 :
@@ -123,7 +123,7 @@ export function prepare(artists, seed = 0, { weights = DEFAULT_WEIGHTS } = {}) {
       tier,
       weight,
       // Rows are packed in this order, not by `weight`. The extra jitter lets
-      // neighbouring tiers share a row so the wall doesn't band into stripes of
+      // neighboring tiers share a row so the wall doesn't band into stripes of
       // uniform size — the slack it creates is what words float in.
       sortKey: weight * (1 - CFG.sortBlur / 2 + CFG.sortBlur * mix(h, 12)),
       fontWeight: weights[wIdx],
@@ -217,9 +217,9 @@ const stackHeight = (rows) => rows.reduce((h, r) => h + r.height, 0);
 //   fill  — the smallest scale whose rows still stack past the viewport bottom
 //   floor — the scale at which the smallest word is still comfortably readable
 //
-// On a wide screen `fill` dominates and all 201 names land in one screen. On a
-// phone `floor` dominates, the wall grows past the fold, and the page scrolls.
-// One rule, both behaviours.
+// On a wide screen `fill` dominates and the whole wall lands in one screen. On
+// a phone `floor` dominates, the wall grows past the fold, and the page
+// scrolls. One rule, both behaviors.
 function solveScale(sorted, width, height, minPx) {
   let lo = 1;
   let hi = 600;

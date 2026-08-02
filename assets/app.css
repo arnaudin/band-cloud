@@ -5,13 +5,13 @@
 /* ---------------------------------------------------------------- themes ---
    Token groups, in the order they matter:
 
-   --w0..--w5   the wall's tonal ramp, indexed by tier. This is the structural
-                idea: how often a band was seen drives its *lightness*, not just
-                its size, so the 172 one-off names recede into the ground and
-                the repeats come forward. Before this, 172 of 201 words rendered
-                at full bone and the wall read as a sheet of white.
-   --a1..--a5   wall accent hues, mixed toward --ground by tier at paint time,
-                so a rare colour on a small word is a whisper, not a shout.
+   --w0..--w5   the wall's tonal ramp, indexed by tier. How often a band was
+                seen drives its *lightness*, not just its size, so one-off names
+                recede toward the ground and repeats come forward. With a single
+                foreground color, size works alone and a dense wall reads as a
+                sheet of white.
+   --a1..--a5   wall accent hues, mixed toward that tier's own ramp value at
+                paint time, so a rare color on a small word is a whisper.
    --ochre/--teal/--indigo   semantic UI only (dates, badges, links).
 */
 
@@ -23,8 +23,8 @@
   --hairline:  #2a2724;
 
   /* Every step clears 4.5:1 on --ground. The ramp wants to go darker at the
-     bottom, but tiers 0–1 are ~146 of the 201 words, so a pretty floor would
-     put most of the page under AA. 4.7 is as dark as the tail may go. */
+     bottom, but the smallest tiers hold most of the words, so a prettier floor
+     would put the majority of the page under AA. */
   --w0: #807b74;   /*  4.7:1 */
   --w1: #938d84;   /*  6.0   */
   --w2: #a9a298;   /*  7.8   */
@@ -42,9 +42,8 @@
   --teal:      #559c92;
   --indigo:    #7d8cbe;
 
-  /* Phase-2 background visualization dials. The wall must stay legible over
-     anything drawn behind it, so intensity is capped here rather than in the
-     draw loop's own logic. */
+  /* Background wash intensity. Capped here rather than inside the draw loop,
+     so the wall stays legible over whatever haze.js paints. */
   --haze-intensity: 0.55;
 
   /* Two wall faces. `--display` is declared outright in each state rather than
@@ -58,9 +57,9 @@
   --ease: cubic-bezier(.2, .7, .3, 1);
 }
 
-/* Tungsten bulbs on a theatre front. One hue family — all the variation lives in
+/* Tungsten bulbs on a theater front. One hue family — all the variation lives in
    temperature and value, so the ramp reads as a filament warming up rather than
-   as five different colours. Accents are cold, like a blown bulb. */
+   as five different colors. Accents are cold, like a blown bulb. */
 :root[data-theme="marquee"] {
   --ground:    #0a0806;
   --ground-2:  #141009;
@@ -92,7 +91,7 @@
 
 /* Self-hosted, no external requests. Google Fonts' `latin` subset (U+0000–00FF)
    — covers every band and venue name in the data with room for future ones.
-   Licences in assets/fonts/LICENSES.md. */
+   Licenses in assets/fonts/LICENSES.md. */
 @font-face {
   font-family: "Oswald";
   font-style: normal;
@@ -263,10 +262,10 @@ body {
 
   /* Parallax rides on the `translate` property so it composes with the layout
      `transform` instead of fighting it. --px/--py are set once on the wall and
-     inherit, so a pointer move is one style write, not 201.
+     inherit, so a pointer move is one style write, not one per word.
 
      Only the horizontal axis is depth-scaled, and --dp is per ROW (see render).
-     Depth per *word* is what made this glitchy: neighbours in the same row slid
+     Depth per *word* is what made this glitchy: neighbors in the same row slid
      at different rates, up to 0.75× amplitude of relative movement, which is
      more than the few px of gap between small adjacent words — so they collided
      as the pointer moved. Rows slide as rigid units now, and the vertical
@@ -275,12 +274,8 @@ body {
   translate: calc(var(--px, 0px) * var(--dp, 0)) var(--py, 0px);
 }
 
-/* Accented words sit fractionally lighter in weight so colour alone carries the
-   emphasis — screen blending over the haze blew them out. */
-.word.is-accent { letter-spacing: .002em; }
-
 /* Spotlight: hovering anywhere in the wall recedes everything else.
-   Pure CSS — no neighbour computation, and it reads better than a radius.
+   Pure CSS — no neighbor computation, and it reads better than a radius.
 
    Deliberately NO geometry change on hover. A scale here jitters badly: with
    transform-origin at 0 0 the box grows right and down, moving its own hit-edge
