@@ -24,8 +24,15 @@ if (!existsSync(p('assets', 'data.json'))) {
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 
+// macOS sprinkles .DS_Store through any folder that's been opened in Finder, and
+// a plain recursive copy happily ships them.
+const junk = /(^|\/)(\.DS_Store|Thumbs\.db|\._.*)$/;
+
 cpSync(p('index.html'), join(OUT, 'index.html'));
-cpSync(p('assets'), join(OUT, 'assets'), { recursive: true });
+cpSync(p('assets'), join(OUT, 'assets'), {
+  recursive: true,
+  filter: (src) => !junk.test(src),
+});
 
 // The font licenses must travel with the fonts; everything else in assets/ is
 // already runtime code.
