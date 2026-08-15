@@ -3,8 +3,7 @@
 Every band I've seen live, as a word cloud. Click a name for when and where;
 search to jump straight to a band, venue, or festival.
 
-Built for and running at **[ryanarnaudin.com](https://ryanarnaudin.com)**, where
-it lives in a subdirectory.
+**Live at [ryanarnaudin.com/sites/band-cloud](https://ryanarnaudin.com/sites/band-cloud/)**
 
 ![The wall, Ink & Ash theme](docs/img/wall-ink.jpg)
 
@@ -312,7 +311,9 @@ Code is MIT — see [LICENSE](LICENSE). Two exceptions, both noted there:
 
 MIT means you can use this without asking. If the layout engine is useful to
 you, a link back to [ryanarnaudin.com](https://ryanarnaudin.com) is genuinely
-appreciated — a line in a README or a footer credit is plenty.
+appreciated — a line in a README or a footer credit is plenty. The running
+version is at
+[ryanarnaudin.com/sites/band-cloud](https://ryanarnaudin.com/sites/band-cloud/).
 
 That's a request, not a condition. Making it a license term would mean this is
 no longer MIT, which costs more than a backlink is worth.
