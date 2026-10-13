@@ -157,20 +157,68 @@ function parseDate(raw) {
   return null;
 }
 
-// The sheet increasingly writes venues as "Name, City" or "Name, City, ST".
-// Reading that directly means a new one-off in a new town needs no hand-added
-// metadata — just type the city in the cell and it lands on the venue page.
+const STATE_NAMES = {
+  alabama: 'AL', alaska: 'AK', arizona: 'AZ', arkansas: 'AR', california: 'CA',
+  colorado: 'CO', connecticut: 'CT', delaware: 'DE', florida: 'FL', georgia: 'GA',
+  hawaii: 'HI', idaho: 'ID', illinois: 'IL', indiana: 'IN', iowa: 'IA',
+  kansas: 'KS', kentucky: 'KY', louisiana: 'LA', maine: 'ME', maryland: 'MD',
+  massachusetts: 'MA', michigan: 'MI', minnesota: 'MN', mississippi: 'MS',
+  missouri: 'MO', montana: 'MT', nebraska: 'NE', nevada: 'NV',
+  'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+  'north carolina': 'NC', 'north dakota': 'ND', ohio: 'OH', oklahoma: 'OK',
+  oregon: 'OR', pennsylvania: 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+  'south dakota': 'SD', tennessee: 'TN', texas: 'TX', utah: 'UT', vermont: 'VT',
+  virginia: 'VA', washington: 'WA', 'west virginia': 'WV', wisconsin: 'WI',
+  wyoming: 'WY', 'district of columbia': 'DC',
+};
+
+// Returns the two-letter code if `s` names a US state, else null.
+const asState = (s) => (/^[A-Z]{2}$/.test(s) ? s : STATE_NAMES[s.toLowerCase()] ?? null);
+
+// "Blacksburg VA" -> city + region. Only strips the last word when it really is
+// a state, so a two-word city like "San Antonio" survives intact.
+function splitCityState(chunk) {
+  const m = /^(.+?)\s+([A-Za-z.]{2,})$/.exec(chunk);
+  const st = m && asState(m[2].replace(/\./g, ''));
+  return st ? { city: m[1].trim(), region: st } : { city: chunk, region: null };
+}
+
+// The sheet writes venues as "Name", "Name, City", "Name, City, ST", and —
+// once people start typing freely — "Name, City ST", "Name, City, California",
+// "Name, Building, City, ST", and the odd duplicated fragment. Reading the cell
+// directly is what lets a one-off in a new town need no hand-added metadata, so
+// it's worth parsing all of those rather than only the tidy forms.
 //
-// "Austin, TX" is the ambiguous case: two parts where the second is a state
-// code means a city was recorded with no venue, not a venue called Austin.
+// "Austin, TX" is the ambiguous case: two parts whose second is *only* a state
+// means a city was recorded with no venue, not a venue called Austin.
 function splitVenue(raw, cityRegions) {
-  const parts = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  let parts = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  // Collapse repeats, e.g. "Attitudes, Blacksburg VA, Blacksburg VA".
+  parts = parts.filter((p, i) => !parts.slice(0, i).some((q) => q.toLowerCase() === p.toLowerCase()));
+
   if (parts.length <= 1) return { name: parts[0] ?? null, city: null, region: null };
+
   if (parts.length === 2) {
-    if (/^[A-Z]{2}$/.test(parts[1])) return { name: null, city: parts[0], region: parts[1] };
-    return { name: parts[0], city: parts[1], region: cityRegions[parts[1]] ?? null };
+    if (asState(parts[1]) && parts[1].split(/\s+/).length === 1) {
+      return { name: null, city: parts[0], region: asState(parts[1]) };
+    }
+    const { city, region } = splitCityState(parts[1]);
+    return { name: parts[0], city, region: region ?? cityRegions[city] ?? null };
   }
-  return { name: parts[0], city: parts[1], region: parts[2] };
+
+  // Three or more: the venue is first, the location is the tail. Anything in
+  // between (a building or complex name) is dropped rather than mistaken for a
+  // city — "Herbst Theatre, War Memorial, San Francisco, CA".
+  const name = parts[0];
+  const tail = parts.slice(1);
+  const last = tail[tail.length - 1];
+  const st = asState(last);
+  if (st && tail.length >= 2) {
+    const { city } = splitCityState(tail[tail.length - 2]);
+    return { name, city, region: st };
+  }
+  const { city, region } = splitCityState(last);
+  return { name, city, region: region ?? cityRegions[city] ?? null };
 }
 
 /* --------------------------------------------------------------- build --- */
