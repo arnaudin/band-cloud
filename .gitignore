@@ -1,8 +1,8 @@
 # ─── personal data ───────────────────────────────────────────────────────────
-# The real show history stays off GitHub. Both of these are needed to run the
-# site but neither is public: source.csv is the export from the sheet, and
-# data.json is built from it and carries exactly the same facts, so ignoring one
-# without the other would be pointless.
+# The real show history stays out of this public repo. source.csv and
+# overrides.json are symlinks into the private band-cloud-data repo, and
+# data.json is built from them and carries exactly the same facts, so ignoring
+# one without the other would be pointless.
 #
 # `data/sample.csv` and `data/sample.overrides.json` are committed in their
 # place — the build falls back to them automatically, so a fresh clone runs.

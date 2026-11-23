@@ -3,10 +3,10 @@
 //
 //   node tools/build.mjs && node tools/dist.mjs
 //
-// Needed because the real data is gitignored, so the repo can't be deployed
-// straight from GitHub — you build locally and upload the result. dist/ holds
-// exactly what a web server needs and nothing else: no CSV, no overrides, no
-// build scripts, no REVIEW.md.
+// Needed because the real data isn't in this repo, so it can't be served
+// straight from GitHub. The deploy workflow in band-cloud-data runs this and
+// publishes the result (see UPDATING.md). dist/ holds exactly what a web server
+// needs and nothing else: no CSV, no overrides, no build scripts, no REVIEW.md.
 
 import { cpSync, rmSync, mkdirSync, existsSync, statSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

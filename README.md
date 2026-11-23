@@ -36,7 +36,7 @@ Routing is hash-based for the same reason — no rewrite rules required.
 ```
 index.html
 assets/          runtime — styles, ES modules, fonts, generated data.json
-data/            source CSV + corrections (the real pair is gitignored)
+data/            sample CSV + corrections (the real pair is private, symlinked in)
 tools/           build.mjs · dist.mjs · audit.js
 ```
 
@@ -55,8 +55,10 @@ Serve it over HTTP. Opening `index.html` as a `file://` URL gives a blank wall,
 because the page fetches `assets/data.json` and uses ES modules, both of which
 browsers block on `file://`.
 
-To publish: `node tools/dist.mjs` assembles `dist/` — `index.html` and `assets/`
-only, nothing else — and that folder is the deployable site.
+`node tools/dist.mjs` assembles `dist/` — `index.html` and `assets/` only,
+nothing else — and that folder is the deployable site. The live copy is built
+and deployed automatically from a private data repo; see
+[UPDATING.md](UPDATING.md#publishing).
 
 ## The data
 

@@ -3,22 +3,20 @@
 ## The whole loop
 
 1. Edit the Google Sheet.
-2. **File → Download → CSV**, and save it over `data/source.csv`.
+2. **File → Download → CSV**, and save it over `source.csv` in the data repo
+   (`../band-cloud-data/source.csv`), not over `data/source.csv` here. The file
+   here is a symlink, and saving over it replaces the link with a plain file.
 3. Run the build (from the project root, Node 18+):
    ```bash
    node tools/build.mjs
    ```
 4. Read what it prints, then read `REVIEW.md`.
-5. Reload the page. Done.
-
-To publish, also:
-
-```bash
-node tools/dist.mjs        # assembles dist/ — index.html + assets/ only
-```
-
-and upload `dist/`. It goes at any path on any static host; every reference is
-relative and routing is hash-based, so there's no server config.
+5. Reload the page to check it locally.
+6. Publish by committing and pushing the data repo:
+   ```bash
+   cd ../band-cloud-data && git add source.csv && git commit -m 'Add shows' && git push
+   ```
+   The site updates by itself in about a minute. See [Publishing](#publishing).
 
 That's it for a normal update — **no code to touch.** The sheet is the source of
 truth; `assets/data.json` is generated and should never be hand-edited (the next
@@ -34,10 +32,26 @@ The repo is public, the show history isn't. These are gitignored:
 
 | | |
 |---|---|
-| `data/source.csv` | the export from your sheet |
-| `data/overrides.json` | your corrections, which name real bands and venues |
+| `data/source.csv` | the export from your sheet (a symlink into the data repo) |
+| `data/overrides.json` | your corrections, which name real bands and venues (also a symlink) |
 | `assets/data.json` | built from those — same facts, so ignoring only the CSV would be pointless |
 | `REVIEW.md` | open questions about the private data |
+
+The real `source.csv` and `overrides.json` live in a separate private repo,
+[arnaudin/band-cloud-data](https://github.com/arnaudin/band-cloud-data), checked
+out next to this one. The symlinks let the build here read them without them
+ever being in this repo. On a new machine:
+
+```bash
+git clone https://github.com/arnaudin/band-cloud-data ../band-cloud-data
+ln -s ../../band-cloud-data/source.csv data/source.csv
+ln -s ../../band-cloud-data/overrides.json data/overrides.json
+```
+
+Edit the files in `../band-cloud-data/`, not through the links: anything that
+saves by replacing the file turns the link back into a plain file, and the data
+repo never sees the change. `ls -l data/` shows `->` on both while they're
+intact.
 
 `data/sample.csv` and `data/sample.overrides.json` are committed in their place.
 **The build falls back to them automatically**, so a fresh clone runs with no
@@ -45,10 +59,42 @@ setup and anyone reading the repo sees the engine work on invented data. The
 real files win when present; the build prints a banner when it falls back to the
 sample, so you always know which data you're looking at.
 
-The consequence: **the repo can't deploy itself**, because the data it needs
-isn't in it. That's why `tools/dist.mjs` exists — build locally, upload `dist/`.
-GitHub Pages served straight from this repo would fetch a missing
-`assets/data.json` and render "Couldn't load the data" instead of the wall.
+The consequence: **this repo can't deploy itself**, because the data it needs
+isn't in it. GitHub Pages served straight from this repo would fetch a missing
+`assets/data.json` and render "Couldn't load the data" instead of the wall. The
+deploy runs from the data repo instead.
+
+## Publishing
+
+The live site at
+[ryanarnaudin.com/sites/band-cloud](https://ryanarnaudin.com/sites/band-cloud/)
+is `sites/band-cloud/` in the
+[arnaudin.github.io](https://github.com/arnaudin/arnaudin.github.io) repo, and
+it updates itself:
+
+1. A push to `band-cloud-data` that changes `source.csv` or `overrides.json`
+   runs its `Deploy Band Cloud to the site` workflow. A push here that changes
+   `index.html`, `assets/` or the build scripts runs
+   `.github/workflows/trigger-deploy.yml`, which asks the data repo to run the
+   same deploy.
+2. The deploy checks out both repos, runs `tools/build.mjs` and `tools/dist.mjs`,
+   copies `dist/` over `sites/band-cloud/`, and commits that to the site repo.
+3. That commit sets off the site repo's own build, which uploads to the server.
+
+The workflow lives in the data repo, not here, because Actions logs on a public
+repo are public and the build prints details of the private data. It refuses to
+deploy if the real data is missing (the sample fallback would publish invented
+bands), if the build has any warnings, or if anything outside
+`sites/band-cloud/` would change.
+
+Don't edit `sites/band-cloud/` in the site repo by hand; the next deploy
+overwrites it. To redeploy without a change, use **Run workflow** on the data
+repo's Actions tab. Setup and the token it needs are documented at the top of
+its `.github/workflows/deploy.yml`.
+
+`node tools/dist.mjs` still works locally if you want the deployable folder for
+another host: it assembles `dist/` with `index.html` and `assets/` only, which
+goes at any path on any static host with no server config.
 
 ---
 
@@ -119,7 +165,9 @@ holds, in order:
 - **Artists seen more than once**
 - **Build warnings**, if any — unparseable dates, missing overrides sections
 
-Nothing in it breaks the site; it's a to-do list, not errors. But the counts are
+Most of it is a to-do list, not errors. The exception is **Build warnings**:
+the deploy refuses to publish while there are any, because each one is a row
+that would go live wrong. The counts are
 the fastest way to spot an import that went wrong: a sudden jump in venues or a
 drop in appearances usually means a column shifted.
 
