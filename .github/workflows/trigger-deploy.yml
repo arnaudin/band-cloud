@@ -1,0 +1,46 @@
+# Ask the private data repo to rebuild and deploy the site when the app changes.
+#
+# The real build runs in arnaudin/band-cloud-data (deploy.yml), because it needs
+# the private show history and its logs would show it. This repo is public, so all
+# this job does is send a dispatch carrying the commit to build; it never sees the
+# data.
+#
+# SETUP (one time):
+#   1. Create a fine-grained personal access token:
+#        GitHub -> Settings -> Developer settings -> Personal access tokens ->
+#        Fine-grained tokens -> Generate new token
+#        Repository access : Only select repositories -> arnaudin/band-cloud-data
+#        Permissions       : Repository permissions -> Contents -> Read and write
+#      (repository_dispatch requires Contents write on the target repo.)
+#   2. In THIS repo: Settings -> Secrets and variables -> Actions ->
+#      New repository secret, named DEPLOY_DISPATCH_TOKEN, with that token.
+#
+# Secrets are not passed to workflows triggered from forks, and this only runs on
+# pushes to main, so the token is not exposed by outside pull requests.
+name: Trigger site deploy
+
+on:
+  push:
+    branches: ["main"]
+    # Only what ends up in dist/. Docs, the audit tool and the sample data don't.
+    paths:
+      - "index.html"
+      - "assets/**"
+      - "tools/build.mjs"
+      - "tools/dist.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch to band-cloud-data
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_DISPATCH_TOKEN }}
+        run: |
+          gh api repos/arnaudin/band-cloud-data/dispatches \
+            -f event_type=band-cloud-code \
+            -f "client_payload[sha]=${GITHUB_SHA}"
