@@ -117,9 +117,10 @@ printed once for the show instead of repeated after each name.
 
 ### Corrections
 
-Anything the sheet can't express lives in `data/overrides.json` — artist and
+Anything a CSV row can't express lives in `data/overrides.json` — artist and
 venue aliases, city/state lookups, festival mappings, date fixes. Keeping it
-separate from the CSV means re-exporting the sheet never discards cleanup work.
+separate means the CSV stays a plain record of each show, and the CSV can be
+regenerated from a spreadsheet export without discarding cleanup work.
 
 The build asserts its own output — no duplicate IDs, no orphan references, no
 empty lineups, artist and show appearance counts in agreement — and exits

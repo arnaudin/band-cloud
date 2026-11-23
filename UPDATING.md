@@ -1,26 +1,35 @@
 # Updating the site
 
-## The whole loop
+`source.csv` in the data repo is the source of truth. There is no spreadsheet
+behind it any more: edit the CSV itself.
 
-1. Edit the Google Sheet.
-2. **File → Download → CSV**, and save it over `source.csv` in the data repo
-   (`../band-cloud-data/source.csv`), not over `data/source.csv` here. The file
-   here is a symlink, and saving over it replaces the link with a plain file.
-3. Run the build (from the project root, Node 18+):
+## The usual way: ask Claude
+
+Tell Claude Code what you saw — "I saw Earthless at Central Machine Works,
+Austin last night." The **add-show** skill (in the data repo at
+`skills/add-show/`, linked into `~/.claude/skills/`) appends the row, matches
+existing venue spellings, checks the build, pushes the data repo and watches the
+deploy through to the live site.
+
+## By hand
+
+1. Edit `source.csv` in the data repo (`../band-cloud-data/source.csv`), not
+   `data/source.csv` here. The file here is a symlink, and an editor that saves
+   by replacing the file turns it into a plain file the data repo never sees.
+2. Run the build (from the project root, Node 18+):
    ```bash
    node tools/build.mjs
    ```
-4. Read what it prints, then read `REVIEW.md`.
-5. Reload the page to check it locally.
-6. Publish by committing and pushing the data repo:
+3. Read what it prints, then read `REVIEW.md`.
+4. Reload the page to check it locally.
+5. Publish by committing and pushing the data repo:
    ```bash
    cd ../band-cloud-data && git add source.csv && git commit -m 'Add shows' && git push
    ```
    The site updates by itself in about a minute. See [Publishing](#publishing).
 
-That's it for a normal update — **no code to touch.** The sheet is the source of
-truth; `assets/data.json` is generated and should never be hand-edited (the next
-build overwrites it).
+That's it for a normal update — **no code to touch.** `assets/data.json` is
+generated and should never be hand-edited (the next build overwrites it).
 
 The build prints a summary and refuses to write a broken file. If it exits with
 `Build failed`, nothing was overwritten and the site keeps running on the last
@@ -32,7 +41,7 @@ The repo is public, the show history isn't. These are gitignored:
 
 | | |
 |---|---|
-| `data/source.csv` | the export from your sheet (a symlink into the data repo) |
+| `data/source.csv` | the show history, one row per band (a symlink into the data repo) |
 | `data/overrides.json` | your corrections, which name real bands and venues (also a symlink) |
 | `assets/data.json` | built from those — same facts, so ignoring only the CSV would be pointless |
 | `REVIEW.md` | open questions about the private data |
@@ -100,7 +109,8 @@ goes at any path on any static host with no server config.
 
 ## Adding a one-off show
 
-The CSV format — columns, every accepted date format, and how venues and notes
+The add-show skill handles this, including the rules below. When editing by
+hand: the CSV format — columns, every accepted date format, and how venues and notes
 are parsed — is documented in [README.md](README.md#csv-format). It is the
 reference; this file is the routine.
 
@@ -131,23 +141,23 @@ name refers to.
 
 ## When to edit `data/overrides.json`
 
-Only for things the sheet can't say on its own. It exists so a fresh export
-never wipes out cleanup work.
+Only for things a CSV row can't say on its own. It keeps corrections and
+lookups out of the rows, so the CSV stays a plain record of each show.
 
 | Section | For |
 |---|---|
 | `artistAliases` | two spellings of one band (`The Infamous Stringdusters` → `Infamous Stringdusters`) |
 | `venueAliases` | two spellings of one venue (`Radio/East, Austin` → `Radio East, Austin`) |
 | `cityRegions` | teaching a new city its state |
-| `venueMeta` | a city you know but don't want in the sheet; `"assumed": true` marks a guess |
-| `dateFixes` | a typo you'd rather not "correct" in the sheet |
+| `venueMeta` | a city you know but don't want in the CSV; `"assumed": true` marks a guess |
+| `dateFixes` | a typo you'd rather not "correct" in the CSV |
 | `venueIsFestival` | mapping a festival to its real site |
 | `festivalNotes` | a Notes value that should become a festival |
 | `cityHints` | a Notes value that is really a city — superseded by putting the city in the venue cell, kept for older rows |
 
 Rebuild after editing this file — it is read at build time, not by the page.
 
-Fixing the underlying row in the sheet is always better than adding an alias.
+Fixing the underlying row in the CSV is always better than adding an alias.
 Aliases are for when both spellings are legitimately in use.
 
 ---
@@ -176,7 +186,7 @@ drop in appearances usually means a column shifted.
 ## Checking your work
 
 The build asserts its own output and exits non-zero on regression, so a bad
-export can't quietly land.
+edit can't quietly land.
 
 After adding a lot of bands at once, it's worth confirming the wall still packs
 cleanly: paste `tools/audit.js` into the browser console and run `__sweep(25)`.

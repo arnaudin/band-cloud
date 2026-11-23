@@ -3,8 +3,8 @@
 //
 //   node tools/build.mjs
 //
-// No dependencies. source.csv is the source of truth — re-export the sheet over it
-// and rebuild; every correction lives in overrides.json and is re-applied each run.
+// No dependencies. source.csv is the source of truth — edit it and rebuild; every
+// correction lives in overrides.json and is re-applied each run.
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -375,7 +375,7 @@ for (const r of csv) {
         assumed: !split.city && meta.assumed === true,
         showIds: [],
       });
-      if (!city) warnings.push(`Venue "${venueName}" (${venueId}) has no city — add one in the sheet as "${venueName}, City"`);
+      if (!city) warnings.push(`Venue "${venueName}" (${venueId}) has no city — add one in source.csv as "${venueName}, City"`);
     }
     const v = venues.get(venueId);
     if (!v.showIds.includes(showId)) v.showIds.push(showId);
