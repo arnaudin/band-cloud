@@ -12,7 +12,7 @@ packed past the container edge and scaled back to fit, so whitespace has nowhere
 to appear and names bleed off the sides by design. Every load composes a new
 arrangement.
 
-Clicking a name opens its history — every date and venue, festivals, tour notes,
+Clicking a name opens its history: every date and venue, festivals, tour notes,
 and who else was on the bill that night:
 
 ![Detail drawer for a band, showing dates, venues and other acts](docs/img/detail.jpg)
@@ -25,17 +25,17 @@ Two themes and two typefaces, each toggled from the masthead:
 
 ## Stack
 
-None. Static HTML, CSS, and ES modules — no framework, no dependencies, no
+None. Static HTML, CSS, and ES modules: no framework, no dependencies, no
 external requests at runtime. Two self-hosted webfonts (60KB total). The only
 Node in the project is the data tooling, and it has no packages either.
 
 Everything uses relative paths, so the built folder can be dropped at any subpath
 of any static host (`/shows/`, `/concerts/`, wherever) with no configuration.
-Routing is hash-based for the same reason — no rewrite rules required.
+Routing is hash-based for the same reason; no rewrite rules required.
 
 ```
 index.html
-assets/          runtime — styles, ES modules, fonts, generated data.json
+assets/          runtime: styles, ES modules, fonts, generated data.json
 data/            sample CSV + corrections (the real pair is private, symlinked in)
 tools/           build.mjs · dist.mjs · audit.js
 ```
@@ -55,8 +55,8 @@ Serve it over HTTP. Opening `index.html` as a `file://` URL gives a blank wall,
 because the page fetches `assets/data.json` and uses ES modules, both of which
 browsers block on `file://`.
 
-`node tools/dist.mjs` assembles `dist/` — `index.html` and `assets/` only,
-nothing else — and that folder is the deployable site. The live copy is built
+`node tools/dist.mjs` assembles `dist/` (`index.html` and `assets/` only,
+nothing else), and that folder is the deployable site. The live copy is built
 and deployed automatically from a private data repo; see
 [UPDATING.md](UPDATING.md#publishing).
 
@@ -74,7 +74,7 @@ them back into one show, and each then lists the other under "Also that night."
 | Column | Notes |
 |---|---|
 | `Band` | Required. A blank row is skipped. |
-| `Date` | Optional, several formats — see below. |
+| `Date` | Optional, several formats; see below. |
 | `Venue or Festival` | Optional. `Venue, City` and `Venue, City, ST` are parsed. |
 | `Notes` | Optional. Tour name, festival, URL, or free text. |
 
@@ -86,15 +86,15 @@ forcing one format:
 | `9/24/2025` · `"December 7, 2002"` | exact day |
 | `7/26-29/2012` | a run of days, for festivals |
 | `9/30-10/2/2016` | a run crossing a month |
-| `11/2023` · `November 2023` | month only — labeled *approx.* in the UI |
-| `2003` | year only — labeled *approx.* |
+| `11/2023` · `November 2023` | month only, labeled *approx.* in the UI |
+| `2003` | year only, labeled *approx.* |
 | *(blank)* | "Date not recorded" |
 
 Anything coarser than a day is marked approximate, so a vague memory never reads
 as a precise claim. A date containing a comma must be quoted in the CSV;
 spreadsheet exports do that automatically.
 
-Undated rows are **never merged into a shared night**, even at the same venue —
+Undated rows are **never merged into a shared night**, even at the same venue;
 that would be inventing a fact. Give them dates and they combine on their own.
 
 **Venues.** Put the city in the cell and it is read directly, so a new venue in
@@ -104,7 +104,7 @@ a new town needs no configuration:
 |---|---|
 | `Radio East, Austin` | venue, city, state inferred |
 | `Boar's Nest Cafe, Harrisonburg, VA` | venue, city, state |
-| `The Fillmore` | venue with no city — flagged in `REVIEW.md` |
+| `The Fillmore` | venue with no city, flagged in `REVIEW.md` |
 | `Austin, TX` | city only, no venue named |
 
 A two-letter code as the *second* part means "city, state with no venue," which
@@ -117,13 +117,13 @@ printed once for the show instead of repeated after each name.
 
 ### Corrections
 
-Anything a CSV row can't express lives in `data/overrides.json` — artist and
+Anything a CSV row can't express lives in `data/overrides.json`: artist and
 venue aliases, city/state lookups, festival mappings, date fixes. Keeping it
 separate means the CSV stays a plain record of each show, and the CSV can be
 regenerated from a spreadsheet export without discarding cleanup work.
 
-The build asserts its own output — no duplicate IDs, no orphan references, no
-empty lineups, artist and show appearance counts in agreement — and exits
+The build asserts its own output (no duplicate IDs, no orphan references, no
+empty lineups, artist and show appearance counts in agreement) and exits
 non-zero on regression without overwriting anything. Whatever it can't resolve
 confidently goes to `REVIEW.md` as a checklist rather than being guessed at.
 
@@ -134,7 +134,7 @@ rather than of tuning:
 
 - every row is packed to a target 7% wider than the container, then scaled and
   gap-justified to land exactly on it, so no row can end short;
-- a binary search sets one global type scale from the larger of two bounds — the
+- a binary search sets one global type scale from the larger of two bounds: the
   smallest scale whose rows stack past the fold, and a legibility floor. On a
   wide screen the first wins and the whole wall lands in one screen; on a narrow
   one the floor wins and the wall grows past the fold and scrolls.
@@ -145,8 +145,8 @@ words float in whatever vertical slack their row has, and wide words tilt by
 however much that slack can absorb.
 
 **Sizing** is driven by how often a band was seen. Repeat appearances set a floor
-tier and are always large; the bands seen once — the large majority of any such
-list — are spread across the smaller tiers by deterministic per-name variation.
+tier and are always large; the bands seen once (the large majority of any such
+list) are spread across the smaller tiers by deterministic per-name variation.
 Their sizes carry no information, so the variation costs nothing and buys visual
 rhythm.
 
@@ -154,7 +154,7 @@ rhythm.
 
 `packRows` emits a final remainder row that is short by construction. It can be
 stretched but not reliably filled, so it is held out of the row shuffle and
-always placed last. Anywhere else it reads as a hole — a fraction of the ink
+always placed last. Anywhere else it reads as a hole: a fraction of the ink
 density of a healthy row, with gutters an order of magnitude wider. At the
 bottom it is either clipped entirely (the one-screen case) or reads as the
 ragged last line of a justified column, which is ordinary typesetting.
@@ -166,7 +166,7 @@ seeds rather than eyeballing one.
 ### Known limits
 
 Word rotation is capped at a few degrees. Full 90° verticals are incompatible
-with justified-row packing — a rotated name needs vertical room equal to its own
+with justified-row packing. A rotated name needs vertical room equal to its own
 width, which either breaks the coverage guarantee or blows out row heights.
 Supporting them would mean treating verticals as multi-row column blocks placed
 before the rows are packed.
@@ -176,8 +176,8 @@ before the rows are packed.
 Two themes, toggled with the half-circle chip or `C`, remembered in
 `localStorage`.
 
-- **Ink & Ash** (default) — near-black, warm grays, color used sparingly.
-- **Marquee** — tungsten bulbs on a theater front; one hue family, with all the
+- **Ink & Ash** (default): near-black, warm grays, color used sparingly.
+- **Marquee**: tungsten bulbs on a theater front; one hue family, with all the
   variation in temperature and value.
 
 The structural idea in both is a **tonal ramp**: tier drives *lightness*, not
@@ -188,7 +188,7 @@ scale and lightness reinforce each other.
 
 Accents are mixed toward *that tier's own ramp value*, never toward the
 background. Color then reads as a hue shift at roughly constant lightness rather
-than as a brightness drop, so it never fights the hierarchy — and the result's
+than as a brightness drop, so it never fights the hierarchy, and the result's
 contrast is bounded below by two endpoints that both clear AA, so an accent
 can't quietly sink out of legibility.
 
@@ -203,8 +203,8 @@ Two self-hosted faces, toggled with the `Aa` chip or `T`, remembered in
 `localStorage`. The button is always set in the face you would switch *to*, so it
 previews its own result.
 
-- **Oswald** (default) — variable 300–700, condensed grotesque. 28KB.
-- **Permanent Marker** — marker on a wall. 29KB.
+- **Oswald** (default): variable 300–700, condensed grotesque. 28KB.
+- **Permanent Marker**: marker on a wall. 29KB.
 
 Each face carries its own typographic budget in `FACES` (`assets/app.js`) rather
 than sharing global constants, because they aren't interchangeable. The marker
@@ -219,7 +219,7 @@ Both are the Google Fonts `latin` subset (U+0000–00FF). Licenses in
 
 ## Randomness
 
-Every load composes the wall afresh — sizes, weights, colors, tilt, row
+Every load composes the wall afresh: sizes, weights, colors, tilt, row
 composition, and position all reshuffle. Bands with repeat appearances stay
 pinned to the large tiers by their count, because that is the one thing on the
 page carrying information. The rest are free to trade places, so the long tail
@@ -231,13 +231,13 @@ The seed is per *session*, not per layout: `render()` re-runs on every resize, s
 a resize reflows the same composition rather than scrambling it.
 
 To keep a layout, read `bandCloud.seed` in the console and reload with
-`?seed=<number>`. That parameter is read but never written — auto-writing it on
+`?seed=<number>`. That parameter is read but never written. Auto-writing it on
 shuffle would make the next reload reproduce the same wall, which is the thing
 randomness exists to avoid.
 
 `?theme=` and `?face=` work the same way: they override the saved preference for
 one visit without changing what the browser remembers. Useful for linking a
-particular look, and for scripted captures — the screenshots above were taken
+particular look, and for scripted captures; the screenshots above were taken
 headlessly with a pinned seed, so they can be reproduced exactly.
 
 ## Auditing the layout
@@ -254,7 +254,7 @@ __reportBy('vp')   group results by viewport
 
 It measures pairwise glyph-box overlap (via a y-sweep, since all-pairs is tens
 of thousands of comparisons per run) and horizontal coverage band by band.
-Report the **worst** case across a sweep, not the average — a random layout
+Report the **worst** case across a sweep, not the average. A random layout
 means checking one arrangement proves nothing about the next.
 
 What to look for: overlapping pairs should be at or near zero, and the few that
@@ -263,7 +263,7 @@ intersect but the glyphs don't. Coverage and largest-contiguous-gap are the
 whitespace signals; a lone sparse band is just leading between rows, while a run
 of them is a hole.
 
-The auditor has caught bugs that passed visual review — tilted words colliding
+The auditor has caught bugs that passed visual review: tilted words colliding
 with the row above, and the leftover row landing mid-wall. Both looked fine in a
 screenshot.
 
@@ -279,7 +279,7 @@ Two rules the layout depends on:
 With `transform-origin` at `0 0` the box grows right and down, moving its own
 hit-edge out from under the cursor, which drops hover, which shrinks it back,
 which re-enters hover; the grown box also steals hover from the word beside it.
-The lift is a value lift instead — the hovered word climbs to the top of the
+The lift is a value lift instead: the hovered word climbs to the top of the
 tonal ramp.
 
 **Parallax depth is per row, not per word.** Depth by word means neighbors in the
@@ -303,7 +303,7 @@ visibility. See the comment at the top of the file.
 
 ## License
 
-Code is MIT — see [LICENSE](LICENSE). Two exceptions, both noted there:
+Code is MIT; see [LICENSE](LICENSE). Two exceptions, both noted there:
 
 - The bundled fonts keep their own licenses (SIL OFL 1.1 and Apache 2.0), with
   full texts in [`assets/fonts/`](assets/fonts/LICENSES.md).
@@ -314,7 +314,7 @@ Code is MIT — see [LICENSE](LICENSE). Two exceptions, both noted there:
 
 MIT means you can use this without asking. If the layout engine is useful to
 you, a link back to [ryanarnaudin.com](https://ryanarnaudin.com) is genuinely
-appreciated — a line in a README or a footer credit is plenty. The running
+appreciated; a line in a README or a footer credit is plenty. The running
 version is at
 [ryanarnaudin.com/sites/band-cloud](https://ryanarnaudin.com/sites/band-cloud/).
 
